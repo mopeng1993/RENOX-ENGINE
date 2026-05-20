@@ -13,20 +13,24 @@ const bot = new TelegramBot(token, {
   polling: true
 });
 
-// /start
+// 启动
 bot.onText(/\/start/, (msg) => {
+
   bot.sendMessage(
     msg.chat.id,
-    "🔥 RENOX ENGINE ONLINE 🔥\n\nSend a video to begin editing."
+    "🔥 RENOX ENGINE ONLINE 🔥\n\nSend a video to auto edit."
   );
+
 });
 
-// /style
+// 风格列表（未来扩展）
 bot.onText(/\/style/, (msg) => {
+
   bot.sendMessage(
     msg.chat.id,
-    "🎬 Available Styles:\n\n• sigma\n• emotional\n• flash\n• anime\n• cinematic"
+    "🎬 Current Style:\n\nTikTok Fast Edit v1"
   );
+
 });
 
 // 收到视频
@@ -34,31 +38,34 @@ bot.on("video", async (msg) => {
 
   const chatId = msg.chat.id;
 
-  bot.sendMessage(chatId, "📥 Downloading video...");
+  bot.sendMessage(chatId, "📥 Detecting video...");
 
   const fileId = msg.video.file_id;
 
   try {
 
     // 下载视频
-    const filePath = await bot.downloadFile(fileId, "./downloads");
+    const filePath = await bot.downloadFile(
+      fileId,
+      "./downloads"
+    );
 
     bot.sendMessage(chatId, "✅ Video downloaded.");
 
     // 输出文件
     const output = `./downloads/output_${Date.now()}.mp4`;
 
+    bot.sendMessage(chatId, "🎬 Auto editing...");
+
     // ffmpeg command
     const command = `
 ffmpeg -y -i "${filePath}" \
--vf "scale=720:1280,setpts=0.8*PTS,fps=30" \
+-vf "scale=-1:1280,crop=720:1280,setpts=0.8*PTS,fps=30" \
 -af "atempo=1.1" \
 -t 15 \
 -preset veryfast \
 "${output}"
 `;
-
-    bot.sendMessage(chatId, "🎬 Editing video...");
 
     // 执行 ffmpeg
     exec(command, async (error, stdout, stderr) => {
@@ -69,7 +76,7 @@ ffmpeg -y -i "${filePath}" \
 
         bot.sendMessage(
           chatId,
-          `❌ Editing failed:\n${error.message}`
+          `❌ Edit failed:\n${error.message}`
         );
 
         return;
@@ -78,12 +85,15 @@ ffmpeg -y -i "${filePath}" \
       console.log(stdout);
       console.log(stderr);
 
-      bot.sendMessage(chatId, "📤 Sending final video...");
+      bot.sendMessage(chatId, "📤 Uploading final edit...");
 
       // 发回视频
       await bot.sendVideo(chatId, output);
 
-      bot.sendMessage(chatId, "✅ Edit complete.");
+      bot.sendMessage(
+        chatId,
+        "✅ RENOX Edit Complete."
+      );
 
     });
 
