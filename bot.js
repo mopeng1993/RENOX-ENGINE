@@ -13,7 +13,7 @@ const bot = new TelegramBot(token, {
   polling: true
 });
 
-// /start 指令
+// /start
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
@@ -21,7 +21,7 @@ bot.onText(/\/start/, (msg) => {
   );
 });
 
-// /style 指令
+// /style
 bot.onText(/\/style/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
@@ -31,6 +31,7 @@ bot.onText(/\/style/, (msg) => {
 
 // 收到视频
 bot.on("video", async (msg) => {
+
   const chatId = msg.chat.id;
 
   bot.sendMessage(chatId, "📥 Downloading video...");
@@ -44,12 +45,17 @@ bot.on("video", async (msg) => {
 
     bot.sendMessage(chatId, "✅ Video downloaded.");
 
-    // 输出文件名
+    // 输出文件
     const output = `./downloads/output_${Date.now()}.mp4`;
 
-    // ffmpeg 指令
+    // ffmpeg command
     const command = `
-ffmpeg -y -i "${filePath}" -t 30 -vf "scale=720:1280" -preset veryfast "${output}"
+ffmpeg -y -i "${filePath}" \
+-vf "scale=720:1280,setpts=0.8*PTS,fps=30" \
+-af "atempo=1.1" \
+-t 15 \
+-preset veryfast \
+"${output}"
 `;
 
     bot.sendMessage(chatId, "🎬 Editing video...");
@@ -58,6 +64,7 @@ ffmpeg -y -i "${filePath}" -t 30 -vf "scale=720:1280" -preset veryfast "${output
     exec(command, async (error, stdout, stderr) => {
 
       if (error) {
+
         console.error("FFMPEG ERROR:", error);
 
         bot.sendMessage(
@@ -90,4 +97,5 @@ ffmpeg -y -i "${filePath}" -t 30 -vf "scale=720:1280" -preset veryfast "${output
     );
 
   }
+
 });
