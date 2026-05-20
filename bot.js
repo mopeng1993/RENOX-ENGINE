@@ -1,13 +1,15 @@
 const TelegramBot = require("node-telegram-bot-api");
 
-const token = process.env.BOT_TOKEN;
-
-const bot = new TelegramBot(token, {
-  polling: true
+const token = process.env.BOT_TOKE
+    "RENOX ENGINE ONLINE\n\nSend video to begin editing."
+  );
 });
 
-bot.on("message", (msg) => {
-  const chatId = msg.chat.id;
-
-  bot.sendMessage(chatId, "RENOX ENGINE ONLINE");
+bot.onText(/\/style/, (msg) => {
+  bot.sendMessage(
+    msg.chat.id,
+    "Available styles:\n\n- sigma\n- emotional\n- flash\n- anime\n- cinematic"
+  );
 });
+
+bot.
